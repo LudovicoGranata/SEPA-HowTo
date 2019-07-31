@@ -40,8 +40,8 @@
 	"extended": {
 		"type": "basic",
 		"base": 0,
-		"clients": 10,
-		"messages": 10
+		"clients": 2,
+		"messages": 2
 	},
 	"graphs": {
 		

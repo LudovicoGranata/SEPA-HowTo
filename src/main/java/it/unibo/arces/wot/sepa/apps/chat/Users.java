@@ -24,83 +24,85 @@ public class Users extends Consumer {
 	
 	private HashMap<String, String> usersList = new HashMap<String, String>();
 	private boolean joined = false;
-	private boolean firstResults = false;
+	private boolean usersRetrieved = false;
 
 	public Users(JSAP jsap,SEPASecurityManager sm) throws SEPAProtocolException, SEPAPropertiesException, SEPASecurityException {
 		super(jsap, "USERS",sm);
 	}
 
 	public void joinChat() throws SEPASecurityException, IOException, SEPAPropertiesException, SEPAProtocolException, InterruptedException, SEPABindingsException {
-		logger.debug("joinChat");
 		while (!joined) {
 			subscribe(5000);
 			synchronized(this) {
-				wait(5000);
+				wait(1000);
 			}
 		}
-		while (!firstResults) {
+		while (!usersRetrieved) {
 			synchronized(this) {
-				wait(5000);
+				wait(1000);
 			}
 		}
 	}
 
 	public void leaveChat() throws SEPASecurityException, IOException, SEPAPropertiesException, SEPAProtocolException, InterruptedException {
-		logger.debug("leaveChat");
 		while (joined) {
 			unsubscribe(5000);
 			synchronized(this) {
-				wait(5000);
+				wait(1000);
 			}
 		}
 	}
 
 	public Set<String> getUsers() {
-		logger.debug("getUsers");
 		synchronized (usersList) {
 			return usersList.keySet();
 		}
 	}
 
 	public String getUserName(String user) {
-		logger.debug("getUserName: "+user);
 		synchronized (usersList) {
 			return usersList.get(user);
 		}
 	}
 
 	@Override
-	public void onResults(ARBindingsResults results) {
-		logger.debug("onResults");
-	}
-
-	@Override
-	public void onAddedResults(BindingsResults results) {
-		logger.debug("onAddedResults");
-		synchronized (usersList) {
-			for (Bindings bindings : results.getBindings()) {
-				usersList.put(bindings.getValue("user"), bindings.getValue("userName"));
-			}
-		}
+	public void onSubscribe(String spuid, String alias) {
 		synchronized(this) {
-			firstResults = true;
+			joined = true;
 			notify();
 		}
 	}
-
+	
 	@Override
-	public void onRemovedResults(BindingsResults results) {
-		logger.debug("onRemovedResults");
+	public void onFirstResults(BindingsResults results) {
+		onAddedResults(results);
+		
+		synchronized(this) {
+			usersRetrieved = true;
+			notify();
+		}
+	}
+	
+	@Override
+	public void onResults(ARBindingsResults results) {
 		synchronized (usersList) {
-			for (Bindings bindings : results.getBindings()) {
+			for (Bindings bindings : results.getRemovedBindings().getBindings()) {
 				usersList.remove(bindings.getValue("user"));
+			}
+			for (Bindings bindings : results.getAddedBindings().getBindings()) {
+				usersList.put(bindings.getValue("user"), bindings.getValue("userName"));
 			}
 		}
 	}
 
 	@Override
+	public void onAddedResults(BindingsResults results) {}
+
+	@Override
+	public void onRemovedResults(BindingsResults results) {}
+
+	@Override
 	public void onBrokenConnection() {
-		logger.warn("onBrokenConnection");
 		joined = false;
 		
 		try {
@@ -116,26 +118,10 @@ public class Users extends Consumer {
 	}
 
 	@Override
-	public void onSubscribe(String spuid, String alias) {
-		logger.debug("onSubscribe");
-		joined = true;
-		synchronized(this) {
-			notify();
-		}
-	}
-
-	@Override
 	public void onUnsubscribe(String spuid) {
-		logger.debug("onUnsubscribe");
-		joined = false;
 		synchronized(this) {
+			joined = false;
 			notify();
 		}
-	}
-
-	@Override
-	public void onFirstResults(BindingsResults results) {
-		onAddedResults(results);
-	}
-
+	}	
 }
