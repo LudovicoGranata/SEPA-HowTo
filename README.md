@@ -198,4 +198,4 @@ The request of subscription is performed by calling the `subscribe` method. Forc
 ## Chatting
 The following diagram shows the sequence of operations involved during a chat.
 
-![Chat sequence diagram](chat.jpg)
+![Chat sequence diagram](https://github.com/arces-wot/SEPA-HowTo/blob/master/Chat.jpg)
