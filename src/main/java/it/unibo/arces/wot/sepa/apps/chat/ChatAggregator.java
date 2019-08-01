@@ -32,7 +32,7 @@ public abstract class ChatAggregator extends Aggregator {
 		while (!joined) {
 			subscribe(5000);
 			synchronized (this) {
-				wait(5000);
+				wait(1000);
 			}
 		}
 		logger.debug("Joined");
@@ -42,9 +42,9 @@ public abstract class ChatAggregator extends Aggregator {
 			throws SEPASecurityException, SEPAPropertiesException, SEPAProtocolException, InterruptedException {
 		logger.debug("Leave the chat");
 		while (joined) {
-			unsubscribe(5000);
+			unsubscribe(1000);
 			synchronized (this) {
-				wait(5000);
+				wait(1000);
 			}
 		}
 		logger.info("Leaved");
@@ -70,8 +70,8 @@ public abstract class ChatAggregator extends Aggregator {
 	@Override
 	public void onSubscribe(String spuid, String alias) {
 		logger.debug("onSubscribe");
-		joined = true;
 		synchronized(this) {
+			joined = true;
 			notify();
 		}
 	}
@@ -79,8 +79,8 @@ public abstract class ChatAggregator extends Aggregator {
 	@Override
 	public void onUnsubscribe(String spuid) {
 		logger.debug("onUnsubscribe");
-		joined = false;
 		synchronized(this) {
+			joined = false;
 			notify();
 		}
 	}
