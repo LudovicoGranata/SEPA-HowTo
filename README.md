@@ -45,17 +45,17 @@ A new user can be registered thanks to the following simple component, a SEPA *p
 ```java
 public class UserRegistration extends Producer {
 	
-	public UserRegistration(JSAP jsap,SEPASecurityManager sm) throws ... {
-		super(jsap, "REGISTER_USER",sm);
-	}
+public UserRegistration(JSAP jsap,SEPASecurityManager sm) throws ... {
+  super(jsap, "REGISTER_USER",sm);
+}
 	
-	public void register(String userName) {
-		try {
-			this.setUpdateBindingValue("userName", new RDFTermLiteral(userName));
-			update();
-		} 
-		catch (...) {}
-	}
+public void register(String userName) {
+  try {
+    this.setUpdateBindingValue("userName", new RDFTermLiteral(userName));
+	update();
+  } 
+  catch (...) {}
+}
 }
 ```
 
