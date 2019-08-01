@@ -77,83 +77,79 @@ The `Users` component (a SEPA *consumer*) can be used to subscribe to the regist
 
 ```java
 public class Users extends Consumer {	
-	private HashMap<String, String> usersList = new HashMap<String, String>();
-	private boolean joined = false;
-	private boolean usersRetrieved = false;
 
-	public Users(JSAP jsap,SEPASecurityManager sm) throws ... {
-		super(jsap, "USERS",sm);
-	}
+private HashMap<String, String> usersList = new HashMap<String, String>();
+private boolean joined = false;
+private boolean usersRetrieved = false;
 
-	public void joinChat() throws ... {
-		while (!joined) {
-			subscribe(5000);
-			synchronized(this) {wait(1000);}
-		}
-		while (!usersRetrieved) {
-			synchronized(this) {wait(1000);}
-		}
-	}
+public Users(JSAP jsap,SEPASecurityManager sm) throws ... {
+  super(jsap, "USERS",sm);
+}
 
-	public void leaveChat() throws ... {
-		while (joined) {
-			unsubscribe(5000);
-			synchronized(this) {wait(1000);}
-		}
-	}
+public void joinChat() throws ... {
+  while (!joined) {
+    subscribe(5000);
+    synchronized(this) {wait(1000);}
+  }
+  while (!usersRetrieved) {
+    synchronized(this) {wait(1000);}
+  }
+}
 
-	public Set<String> getUsers() {
-		synchronized (usersList) {return usersList.keySet();}
-	}
+public void leaveChat() throws ... {
+  while (joined) {
+    unsubscribe(5000);
+    synchronized(this) {wait(1000);}
+  }
+}
 
-	public String getUserName(String user) {
-		synchronized (usersList) {return usersList.get(user);}
-	}
+public Set<String> getUsers() {
+  synchronized (usersList) {return usersList.keySet();}
+}
 
-	@Override
-	public void onSubscribe(String spuid, String alias) {
-		synchronized(this) { joined = true; notify(); }
-	}
+public String getUserName(String user) {
+  synchronized (usersList) {return usersList.get(user);}
+}
+
+@Override
+public void onSubscribe(String spuid, String alias) {
+  synchronized(this) { joined = true; notify(); }
+}
 	
-	@Override
-	public void onFirstResults(BindingsResults results) {
-		onAddedResults(results);
-		synchronized(this) { usersRetrieved = true; notify(); }
-	}
+@Override
+public void onFirstResults(BindingsResults results) {
+  onAddedResults(results);
+  synchronized(this) { usersRetrieved = true; notify(); }
+}
 	
-	@Override
-	public void onResults(ARBindingsResults results) {
-		synchronized (usersList) {
-			for (Bindings bindings : results.getRemovedBindings().getBindings()) {
-				usersList.remove(bindings.getValue("user"));
-			}
-			for (Bindings bindings : results.getAddedBindings().getBindings()) {
-				usersList.put(bindings.getValue("user"), bindings.getValue("userName"));
-			}
-		}
-	}
+@Override
+public void onResults(ARBindingsResults results) {
+  synchronized (usersList) {
+  for (Bindings bindings : results.getRemovedBindings().getBindings()) {
+    usersList.remove(bindings.getValue("user"));
+  }
+  for (Bindings bindings : results.getAddedBindings().getBindings()) {
+    usersList.put(bindings.getValue("user"), bindings.getValue("userName"));
+  }
+}}
 
-	@Override
-	public void onBrokenConnection() {
-		joined = false;
-		
-		try {
-			joinChat();
-		} 
-		catch (...) {}
-	}
+@Override
+public void onBrokenConnection() {
+  joined = false;
+  try { joinChat();} catch (...) {}
+}
 
-	@Override
-	public void onUnsubscribe(String spuid) {
-		synchronized(this) { joined = false; notify(); }
-	}
+@Override
+public void onUnsubscribe(String spuid) {
+  synchronized(this) { joined = false; notify(); }
+}
 	
-	@Override
-	public void onError(ErrorResponse errorResponse) {}
-	@Override
-	public void onAddedResults(BindingsResults results) {}
-	@Override
-	public void onRemovedResults(BindingsResults results) {}	
+@Override
+public void onError(ErrorResponse errorResponse) {}
+@Override
+public void onAddedResults(BindingsResults results) {}
+@Override
+public void onRemovedResults(BindingsResults results) {}	
 }
 ```
 
@@ -179,53 +175,53 @@ An *aggregator* is an extension of a consumer: it subscribes and when a notifica
 
 ```java
 public abstract class ChatAggregator extends Aggregator {
-	private boolean joined = false;
+
+private boolean joined = false;
 	
-	public ChatAggregator(String subscribeID, String updateID) throws ... {
-		super(new ConfigurationProvider().getJsap(), subscribeID, updateID, new ConfigurationProvider().getSecurityManager());
-	}
+public ChatAggregator(String subscribeID, String updateID) throws ... {
+  super(new ConfigurationProvider().getJsap(), subscribeID, updateID, new ConfigurationProvider().getSecurityManager());
+}
 
-	public void joinChat() throws ... {
-		while (!joined) { 
-			subscribe(1000);
-			synchronized (this) {wait(1000);}
-		}
-	}
+public void joinChat() throws ... {
+  while (!joined) { 
+    subscribe(1000);
+    synchronized (this) {wait(1000);}
+  }
+}
 
-	public void leaveChat() throws ... {
-		while (joined) {
-			unsubscribe(5000);
-			synchronized (this) {wait(1000);}
-		}
-	}
+public void leaveChat() throws ... {
+  while (joined) {
+    unsubscribe(5000);
+    synchronized (this) {wait(1000);}
+  }
+}
 	
-	@Override
-	public void onBrokenConnection() {
-		joined = false;
-		try { joinChat();} catch (...) {}
-	}
+@Override
+public void onBrokenConnection() {
+  joined = false;
+  try { joinChat();} catch (...) {}
+}
 
-	@Override
-	public void onSubscribe(String spuid, String alias) {
-		synchronized(this) { joined = true; notify(); }
-	}
+@Override
+public void onSubscribe(String spuid, String alias) {
+  synchronized(this) { joined = true; notify(); }
+}
 
-	@Override
-	public void onUnsubscribe(String spuid) {
-		synchronized(this) { joined = false; notify();}
-	}
+@Override
+public void onUnsubscribe(String spuid) {
+  synchronized(this) { joined = false; notify();}
+}
 	
-	@Override
-	public void onResults(ARBindingsResults results) {}
-	@Override
-	public void onRemovedResults(BindingsResults results) {}
-	@Override
-	public void onAddedResults(BindingsResults results) {}
-	@Override
-	public void onFirstResults(BindingsResults results) {}
-	@Override
-	public void onError(ErrorResponse errorResponse) {}
-
+@Override
+public void onResults(ARBindingsResults results) {}
+@Override
+public void onRemovedResults(BindingsResults results) {}
+@Override
+public void onAddedResults(BindingsResults results) {}
+@Override
+public void onFirstResults(BindingsResults results) {}
+@Override
+public void onError(ErrorResponse errorResponse) {}
 }
 ```
 
@@ -236,22 +232,21 @@ The code fragment of the `Receiver` aggregator follows:
 ```java
 class Receiver extends ChatAggregator {
 	
-	public Receiver(String userUri,...) throws ... {
-		super("SENT", "SET_RECEIVED");
+public Receiver(String userUri,...) throws ... {
+  super("SENT", "SET_RECEIVED");
+  this.setSubscribeBindingValue("receiver", new RDFTermURI(userUri));
+}
 
-		this.setSubscribeBindingValue("receiver", new RDFTermURI(userUri));
-	}
-
-	@Override
-	public void onAddedResults(BindingsResults results) {
-		for (Bindings bindings : results.getBindings()) {
-			try {
-				this.setUpdateBindingValue("message", new RDFTermURI(bindings.getValue("message")));
-				update();
-			} 
-			catch (...) {}
-		}
-	}
+@Override
+public void onAddedResults(BindingsResults results) {
+  for (Bindings bindings : results.getBindings()) {
+    try {
+	  this.setUpdateBindingValue("message", new RDFTermURI(bindings.getValue("message")));
+      update();
+    } 
+	catch (...) {}
+  }
+}
 }
 ```
 
