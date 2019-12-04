@@ -19,7 +19,7 @@ import it.unibo.arces.wot.sepa.commons.exceptions.SEPAProtocolException;
 import it.unibo.arces.wot.sepa.commons.exceptions.SEPASecurityException;
 
 public class SEPAChatTest {
-	private static int N_CLIENTS = 2;
+	private static int N_CLIENTS = 10;
 	private static int BASE = 0;
 	private static int MESSAGES = 10;
 
@@ -55,7 +55,6 @@ public class SEPAChatTest {
 		for (String user : users.getUsers()) {
 			ChatClient client = new BasicClient(user, users, MESSAGES);
 			clients.add(client);
-
 		}
 
 		for (ChatClient client : clients) {

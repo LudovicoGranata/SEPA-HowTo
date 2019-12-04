@@ -7,9 +7,6 @@ import it.unibo.arces.wot.sepa.commons.exceptions.SEPABindingsException;
 import it.unibo.arces.wot.sepa.commons.exceptions.SEPAPropertiesException;
 import it.unibo.arces.wot.sepa.commons.exceptions.SEPAProtocolException;
 import it.unibo.arces.wot.sepa.commons.exceptions.SEPASecurityException;
-import it.unibo.arces.wot.sepa.commons.response.ErrorResponse;
-import it.unibo.arces.wot.sepa.commons.sparql.ARBindingsResults;
-import it.unibo.arces.wot.sepa.commons.sparql.BindingsResults;
 import it.unibo.arces.wot.sepa.pattern.Aggregator;
 
 /**
@@ -42,33 +39,18 @@ public abstract class ChatAggregator extends Aggregator {
 			throws SEPASecurityException, SEPAPropertiesException, SEPAProtocolException, InterruptedException {
 		logger.debug("Leave the chat");
 		while (joined) {
-			unsubscribe(1000);
+			unsubscribe(5000);
 			synchronized (this) {
 				wait(1000);
 			}
 		}
 		logger.info("Leaved");
 	}
-	
-	@Override
-	public void onBrokenConnection() {
-		logger.warn("onBrokenConnection");
-		
-		joined = false;
-		
-		try {
-			joinChat();
-		} catch (SEPASecurityException  | SEPAPropertiesException | SEPAProtocolException | InterruptedException | SEPABindingsException e2) {
-		}
-	}
-
-	@Override
-	public void onError(ErrorResponse errorResponse) {
-		logger.error("onError: "+errorResponse);
-	}
 
 	@Override
 	public void onSubscribe(String spuid, String alias) {
+		super.onSubscribe(spuid, alias);
+		
 		logger.debug("onSubscribe");
 		synchronized(this) {
 			joined = true;
@@ -78,6 +60,8 @@ public abstract class ChatAggregator extends Aggregator {
 
 	@Override
 	public void onUnsubscribe(String spuid) {
+		super.onUnsubscribe(spuid);
+		
 		logger.debug("onUnsubscribe");
 		synchronized(this) {
 			joined = false;
@@ -85,24 +69,32 @@ public abstract class ChatAggregator extends Aggregator {
 		}
 	}
 	
-	@Override
-	public void onResults(ARBindingsResults results) {
-		logger.debug("onResults");
-	}
-
-	@Override
-	public void onRemovedResults(BindingsResults results) {
-		logger.debug("onRemovedResults");
-	}
-	
-	@Override
-	public void onAddedResults(BindingsResults results) {
-		logger.debug("onAddedResults");
-	}
-	
-	@Override
-	public void onFirstResults(BindingsResults results) {
-		logger.debug("onFirstResults");
-	}
+//	@Override
+//	public void onResults(ARBindingsResults results) {
+//		super.onResults(results);
+//		
+//		logger.debug("onResults");
+//	}
+//
+//	@Override
+//	public void onRemovedResults(BindingsResults results) {
+//		super.onRemovedResults(results);
+//		
+//		logger.debug("onRemovedResults");
+//	}
+//	
+//	@Override
+//	public void onAddedResults(BindingsResults results) {
+//		super.onAddedResults(results);
+//		
+//		logger.debug("onAddedResults");
+//	}
+//	
+//	@Override
+//	public void onFirstResults(BindingsResults results) {
+//		super.onFirstResults(results);
+//		
+//		logger.debug("onFirstResults");
+//	}
 
 }

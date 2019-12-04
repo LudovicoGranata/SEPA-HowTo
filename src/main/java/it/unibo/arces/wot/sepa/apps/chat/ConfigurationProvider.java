@@ -6,14 +6,13 @@ import it.unibo.arces.wot.sepa.commons.request.QueryRequest;
 import it.unibo.arces.wot.sepa.commons.request.SubscribeRequest;
 import it.unibo.arces.wot.sepa.commons.request.UnsubscribeRequest;
 import it.unibo.arces.wot.sepa.commons.request.UpdateRequest;
-import it.unibo.arces.wot.sepa.commons.security.SEPASecurityManager;
+import it.unibo.arces.wot.sepa.commons.security.ClientSecurityManager;
 import it.unibo.arces.wot.sepa.pattern.JSAP;
 
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.logging.log4j.LogManager;
@@ -69,10 +68,7 @@ public class ConfigurationProvider {
 		
 		appProfile = new JSAP(path);
 		
-		Set<String> appPrefixes = appProfile.getPrefixes();
-		for (String prefix : appPrefixes) {
-			prefixes += "PREFIX " + prefix + ":<" + appProfile.getNamespaceURI(prefix) + "> ";
-		}
+		prefixes = appProfile.getPrefixes();
 	}
 
 	private String getSPARQLUpdate(String id) {
@@ -83,7 +79,7 @@ public class ConfigurationProvider {
 		return prefixes + " " +appProfile.getSPARQLQuery(id);
 	}
 	
-	public UpdateRequest buildUpdateRequest(String id, long timeout,SEPASecurityManager sm) {
+	public UpdateRequest buildUpdateRequest(String id, long timeout,ClientSecurityManager sm) {
 		String authorization = null;
 
 		if (sm != null)
@@ -100,7 +96,7 @@ public class ConfigurationProvider {
 				authorization, timeout);
 	}
 
-	public QueryRequest buildQueryRequest(String id, long timeout,SEPASecurityManager sm) {
+	public QueryRequest buildQueryRequest(String id, long timeout,ClientSecurityManager sm) {
 		String authorization = null;
 
 		if (sm != null)
@@ -123,7 +119,7 @@ public class ConfigurationProvider {
 				authToken, timeout);
 	}
 
-	public SubscribeRequest buildSubscribeRequest(String id, long timeout,SEPASecurityManager sm) {
+	public SubscribeRequest buildSubscribeRequest(String id, long timeout,ClientSecurityManager sm) {
 		String authorization = null;		
 		if (sm != null)
 			try {
@@ -136,7 +132,7 @@ public class ConfigurationProvider {
 				appProfile.getNamedGraphURI(id), authorization, timeout);
 	}
 
-	public UnsubscribeRequest buildUnsubscribeRequest(String spuid, long timeout,SEPASecurityManager sm) {
+	public UnsubscribeRequest buildUnsubscribeRequest(String spuid, long timeout,ClientSecurityManager sm) {
 		String authorization = null;		
 		if (sm != null)
 			try {
@@ -148,7 +144,7 @@ public class ConfigurationProvider {
 		return new UnsubscribeRequest(spuid, authorization, timeout);
 	}
 
-	public SEPASecurityManager getSecurityManager() throws SEPASecurityException {
+	public ClientSecurityManager getSecurityManager() throws SEPASecurityException {
 		if (!appProfile.isSecure()) return null;
 		
 		String path = getClass().getClassLoader().getResource("sepa.jks").getPath();
@@ -157,7 +153,7 @@ public class ConfigurationProvider {
 			logger.error("File not found: " + path);
 			throw new SEPASecurityException("File not found: "+path);
 		}
-		return new SEPASecurityManager(f.getPath(), "sepa2017", "sepa2017",appProfile.getAuthenticationProperties());
+		return new ClientSecurityManager(appProfile.getAuthenticationProperties(),f.getPath(), "sepa2017");
 	}
 	
 	public JSAP getJsap() {

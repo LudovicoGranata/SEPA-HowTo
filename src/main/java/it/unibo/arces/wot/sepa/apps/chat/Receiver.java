@@ -22,6 +22,8 @@ class Receiver extends ChatAggregator {
 
 	@Override
 	public void onAddedResults(BindingsResults results) {
+		super.onAddedResults(results);
+		
 		logger.debug("onAddedResults");
 
 		for (Bindings bindings : results.getBindings()) {

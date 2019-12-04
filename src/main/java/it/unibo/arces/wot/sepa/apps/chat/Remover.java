@@ -18,6 +18,8 @@ class Remover extends ChatAggregator {
 
 	@Override
 	public void onAddedResults(BindingsResults results) {
+		super.onAddedResults(results);
+		
 		for (Bindings bindings : results.getBindings()) {
 			logger.debug("RECEIVED: "+bindings.getValue("message"));
 			

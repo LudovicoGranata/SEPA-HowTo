@@ -7,7 +7,7 @@ import it.unibo.arces.wot.sepa.commons.exceptions.SEPABindingsException;
 import it.unibo.arces.wot.sepa.commons.exceptions.SEPAPropertiesException;
 import it.unibo.arces.wot.sepa.commons.exceptions.SEPAProtocolException;
 import it.unibo.arces.wot.sepa.commons.exceptions.SEPASecurityException;
-import it.unibo.arces.wot.sepa.commons.security.SEPASecurityManager;
+import it.unibo.arces.wot.sepa.commons.security.ClientSecurityManager;
 import it.unibo.arces.wot.sepa.pattern.JSAP;
 import it.unibo.arces.wot.sepa.pattern.Producer;
 
@@ -17,7 +17,7 @@ import it.unibo.arces.wot.sepa.pattern.Producer;
 public class DeleteAll extends Producer {
 	private static final Logger logger = LogManager.getLogger();
 	
-	public DeleteAll(JSAP jsap, SEPASecurityManager sm) throws SEPAProtocolException, SEPAPropertiesException, SEPASecurityException {
+	public DeleteAll(JSAP jsap, ClientSecurityManager sm) throws SEPAProtocolException, SEPAPropertiesException, SEPASecurityException {
 		super(jsap, "DELETE_ALL",sm);
 	}
 	
