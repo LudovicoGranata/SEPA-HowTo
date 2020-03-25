@@ -25,13 +25,13 @@ public class ChatMonitor extends GenericClient implements ISubscriptionHandler {
 	
 	private HashMap<String,String> aliases = new HashMap<String,String>();
 	
-	public ChatMonitor(int users,int messages) throws SEPAProtocolException, SEPAPropertiesException, SEPASecurityException, SEPABindingsException {
-		super(new ConfigurationProvider().getJsap(), new ConfigurationProvider().getSecurityManager());
-	
+	public ChatMonitor(int users,int messages) throws SEPAProtocolException, SEPAPropertiesException, SEPASecurityException, SEPABindingsException, InterruptedException {
+		super(new ConfigurationProvider().getJsap(), new ConfigurationProvider().getSecurityManager(), null);
+		super.setHandler(this);
 		totalMessages = users * (users -1) * messages;
 		
-		subscribe("SENT", null, this, 5000, "sent");
-		subscribe("RECEIVED", null, this, 5000, "received");
+		subscribe("SENT", null,5000, "sent");
+		subscribe("RECEIVED", null, 5000, "received");
 	}
 	
 	public void monitor() throws InterruptedException {

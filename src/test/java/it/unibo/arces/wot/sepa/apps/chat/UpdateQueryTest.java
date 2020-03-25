@@ -42,7 +42,7 @@ public class UpdateQueryTest {
 	//@Test(timeout = 5000)
 	@Test
 	public void test() throws SEPAProtocolException, SEPASecurityException, SEPAPropertiesException, IOException {
-		client = new GenericClient(cfg.getJsap(),cfg.getSecurityManager());
+		client = new GenericClient(cfg.getJsap(),cfg.getSecurityManager(), new BasicHandler());
 		
 		run();
 	}
